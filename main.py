@@ -2,6 +2,8 @@ import pygame
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from logger import log_state
 from player import Player
+from asteroid import Asteroid
+from asteroidfield import AsteroidField
 
 
 def main():
@@ -11,15 +13,19 @@ def main():
     clock = pygame.time.Clock()
     dt = 0
 
-    # ---- NEW GROUPS ----
+    # groups
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
+    asteroids = pygame.sprite.Group()  # NEW
 
-    # ---- register containers BEFORE creating player ----
+    # containers (must be set BEFORE instances are created)
     Player.containers = (updatable, drawable)
+    Asteroid.containers = (asteroids, updatable, drawable)  # NEW
+    AsteroidField.containers = (updatable,)  # NEW (not drawable)
 
-    # create player (auto-added to both groups)
+    # instances
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+    asteroid_field = AsteroidField()  # NEW
 
     while True:
         log_state()
@@ -29,10 +35,10 @@ def main():
                 pygame.quit()
                 return
 
-        # ---- UPDATE via group ----
+        # update all
         updatable.update(dt)
 
-        # ---- DRAW via group ----
+        # draw all
         screen.fill("black")
         for obj in drawable:
             obj.draw(screen)
