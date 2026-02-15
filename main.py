@@ -6,39 +6,39 @@ from player import Player
 
 def main():
     pygame.init()
-
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    # ---- create clock + dt BEFORE game loop ----
     clock = pygame.time.Clock()
     dt = 0
 
+    # ---- NEW GROUPS ----
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+
+    # ---- register containers BEFORE creating player ----
+    Player.containers = (updatable, drawable)
+
+    # create player (auto-added to both groups)
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
-    print(f"Starting Asteroids with pygame version {pygame.version.ver}")
-    print(f"Screen width: {SCREEN_WIDTH}")
-    print(f"Screen height: {SCREEN_HEIGHT}")
 
     while True:
         log_state()
 
-        # event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 return
-        player.update(dt)
-        # drawing
+
+        # ---- UPDATE via group ----
+        updatable.update(dt)
+
+        # ---- DRAW via group ----
         screen.fill("black")
-
-        player.draw(screen)
-
+        for obj in drawable:
+            obj.draw(screen)
         pygame.display.flip()
 
-        # ---- FPS limit + delta time ----
-        dt = clock.tick(60) / 1000  # milliseconds → seconds
-
-        # (temporary debugging)
-        # print(dt)   # remove later
+        dt = clock.tick(60) / 1000
 
 
 if __name__ == "__main__":
